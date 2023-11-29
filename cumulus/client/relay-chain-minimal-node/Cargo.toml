@@ -22,7 +22,7 @@ polkadot-node-core-runtime-api = { path = "../../../polkadot/node/core/runtime-a
 sc-authority-discovery = { path = "../../../substrate/client/authority-discovery" }
 sc-network = { path = "../../../substrate/client/network" }
 sc-network-common = { path = "../../../substrate/client/network/common" }
-sc-service = { path = "../../../substrate/client/service" }
+sc-service = { path = "../../../substrate/client/service", default-features = false }
 substrate-prometheus-endpoint = { path = "../../../substrate/utils/prometheus" }
 sc-tracing = { path = "../../../substrate/client/tracing" }
 sc-utils = { path = "../../../substrate/client/utils" }

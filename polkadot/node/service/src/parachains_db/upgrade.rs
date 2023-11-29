@@ -65,7 +65,8 @@ pub(crate) fn try_upgrade_db(db_path: &Path, db_kind: DatabaseKind) -> Result<()
 			// This is an arbitrary future version, we don't handle it.
 			Some(v) => return Err(Error::FutureVersion { current: CURRENT_VERSION, got: v }),
 			// No version file. For `RocksDB` we dont need to do anything.
-			None if db_kind == DatabaseKind::RocksDB => (),
+			#[cfg(feature = "db")]
+			None if db_kind == DatabaseKind::RocksDB => CURRENT_VERSION,
 			// No version file. `ParityDB` did not previously have a version defined.
 			// We handle this as a `0 -> 1` migration.
 			None if db_kind == DatabaseKind::ParityDB =>
@@ -108,6 +109,7 @@ fn migrate_from_version_0_to_1(path: &Path, db_kind: DatabaseKind) -> Result<(),
 
 	match db_kind {
 		DatabaseKind::ParityDB => paritydb_migrate_from_version_0_to_1(path),
+		#[cfg(feature = "db")]
 		DatabaseKind::RocksDB => rocksdb_migrate_from_version_0_to_1(path),
 	}
 	.and_then(|result| {
@@ -121,6 +123,7 @@ fn migrate_from_version_1_to_2(path: &Path, db_kind: DatabaseKind) -> Result<(),
 
 	match db_kind {
 		DatabaseKind::ParityDB => paritydb_migrate_from_version_1_to_2(path),
+		#[cfg(feature = "db")]
 		DatabaseKind::RocksDB => rocksdb_migrate_from_version_1_to_2(path),
 	}
 	.and_then(|result| {
@@ -133,6 +136,7 @@ fn migrate_from_version_2_to_3(path: &Path, db_kind: DatabaseKind) -> Result<(),
 	gum::info!(target: LOG_TARGET, "Migrating parachains db from version 2 to version 3 ...");
 	match db_kind {
 		DatabaseKind::ParityDB => paritydb_migrate_from_version_2_to_3(path),
+		#[cfg(feature = "db")]
 		DatabaseKind::RocksDB => rocksdb_migrate_from_version_2_to_3(path),
 	}
 	.and_then(|result| {
@@ -143,6 +147,7 @@ fn migrate_from_version_2_to_3(path: &Path, db_kind: DatabaseKind) -> Result<(),
 
 /// Migration from version 0 to version 1:
 /// * the number of columns has changed from 3 to 5;
+#[cfg(feature = "db")]
 fn rocksdb_migrate_from_version_0_to_1(path: &Path) -> Result<(), Error> {
 	use kvdb_rocksdb::{Database, DatabaseConfig};
 
@@ -160,6 +165,7 @@ fn rocksdb_migrate_from_version_0_to_1(path: &Path) -> Result<(), Error> {
 
 /// Migration from version 1 to version 2:
 /// * the number of columns has changed from 5 to 6;
+#[cfg(feature = "db")]
 fn rocksdb_migrate_from_version_1_to_2(path: &Path) -> Result<(), Error> {
 	use kvdb_rocksdb::{Database, DatabaseConfig};
 
@@ -174,6 +180,7 @@ fn rocksdb_migrate_from_version_1_to_2(path: &Path) -> Result<(), Error> {
 	Ok(())
 }
 
+#[cfg(feature = "db")]
 fn rocksdb_migrate_from_version_2_to_3(path: &Path) -> Result<(), Error> {
 	use kvdb_rocksdb::{Database, DatabaseConfig};
 
@@ -321,6 +328,7 @@ mod tests {
 		*,
 	};
 
+	#[cfg(feature = "db")]
 	#[test]
 	fn test_rocksdb_migrate_1_to_2() {
 		use kvdb::{DBKey, DBOp};
@@ -380,6 +388,7 @@ mod tests {
 		);
 	}
 
+	#[cfg(feature = "db")]
 	#[test]
 	fn test_rocksdb_migrate_2_to_3() {
 		use kvdb_rocksdb::{Database, DatabaseConfig};
