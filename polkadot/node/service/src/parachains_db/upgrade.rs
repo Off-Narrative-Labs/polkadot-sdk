@@ -199,6 +199,7 @@ fn migrate_from_version_3_to_4(path: &Path, db_kind: DatabaseKind) -> Result<Ver
 
 			v1_to_v2(Arc::new(db), approval_db_config).map_err(|_| Error::MigrationFailed)?;
 		},
+		#[cfg(feature = "db")]
 		DatabaseKind::RocksDB => {
 			let db_path = path
 				.to_str()
